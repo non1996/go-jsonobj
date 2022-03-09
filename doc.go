@@ -31,7 +31,7 @@ func O(kvs ...interface{}) (d *Doc) {
 
 func NewObj(data []byte) (d *Doc, err error) {
 	m := make(map[string]interface{})
-	err = jsonAPI.Unmarshal(data, m)
+	err = jsonAPI.Unmarshal(data, &m)
 	if err != nil {
 		return nil, err
 	}
