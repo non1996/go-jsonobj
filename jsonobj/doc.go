@@ -7,10 +7,6 @@ import (
 	"reflect"
 )
 
-func Version() string {
-	return "v0.0.3"
-}
-
 type Key interface{}
 
 // Doc json obj/arr/value的包装
@@ -31,7 +27,7 @@ func O(kvs ...interface{}) (d *Doc) {
 
 func NewObj(data []byte) (d *Doc, err error) {
 	m := make(map[string]interface{})
-	err = jsonAPI.Unmarshal(data, m)
+	err = jsonAPI.Unmarshal(data, &m)
 	if err != nil {
 		return nil, err
 	}
