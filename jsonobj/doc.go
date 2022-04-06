@@ -7,10 +7,6 @@ import (
 	"reflect"
 )
 
-func Version() string {
-	return "v0.0.3"
-}
-
 type Key interface{}
 
 // Doc json obj/arr/value的包装
