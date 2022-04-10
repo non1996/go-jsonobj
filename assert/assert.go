@@ -33,6 +33,12 @@ func TimeValid(t time.Time, errMsg ...string) error {
 	return False(t.IsZero(), errMsg...)
 }
 
+func TimeValidX(t time.Time, errMsg ...string) func() error {
+	return func() error {
+		return TimeValid(t, errMsg...)
+	}
+}
+
 func Int64EQ(expect, actual int64, errMsg ...string) error {
 	return True(actual == expect, errMsg...)
 }
@@ -94,36 +100,90 @@ func EQ[T comparable](expect, actual T, errMsg ...string) error {
 	return True(actual == expect, errMsg...)
 }
 
-func NE[N comparable](expect, actual N, errMsg ...string) error {
+func EQx[T comparable](expect, actual T, errMsg ...string) func() error {
+	return func() error {
+		return EQ(expect, actual, errMsg...)
+	}
+}
+
+func NE[T comparable](expect, actual T, errMsg ...string) error {
 	return True(actual != expect, errMsg...)
+}
+
+func NEx[T comparable](expect, actual T, errMsg ...string) func() error {
+	return func() error {
+		return NE(expect, actual, errMsg...)
+	}
 }
 
 func GTE[N Number](expect, actual N, errMsg ...string) error {
 	return True(actual >= expect, errMsg...)
 }
 
+func GTEx[N Number](expect, actual N, errMsg ...string) func() error {
+	return func() error {
+		return GTE(expect, actual, errMsg...)
+	}
+}
+
 func GT[N Number](expect, actual N, errMsg ...string) error {
 	return True(actual > expect, errMsg...)
+}
+
+func GTx[N Number](expect, actual N, errMsg ...string) func() error {
+	return func() error {
+		return GT(expect, actual, errMsg...)
+	}
 }
 
 func LTE[N Number](expect, actual N, errMsg ...string) error {
 	return True(actual <= expect, errMsg...)
 }
 
+func LTEx[N Number](expect, actual N, errMsg ...string) func() error {
+	return func() error {
+		return LTE(expect, actual, errMsg...)
+	}
+}
+
 func LT[N Number](expect, actual N, errMsg ...string) error {
 	return True(actual < expect, errMsg...)
 }
 
-func In[N comparable](expect []N, actual N, errMsg ...string) error {
+func LTx[N Number](expect, actual N, errMsg ...string) func() error {
+	return func() error {
+		return LT(expect, actual, errMsg...)
+	}
+}
+
+func In[T comparable](expect []T, actual T, errMsg ...string) error {
 	return True(find(expect, actual), errMsg...)
+}
+
+func Inx[T comparable](expect []T, actual T, errMsg ...string) func() error {
+	return func() error {
+		return In(expect, actual, errMsg...)
+	}
 }
 
 func NotEmpty[T any](list []T, errMsg ...string) error {
 	return True(len(list) != 0, errMsg...)
 }
 
+func NotEmptyx[T any](list []T, errMsg ...string) func() error {
+	return func() error {
+		return NotEmpty(list, errMsg...)
+	}
+}
+
 func NoLonger[T any](maxLen int, list []T, errMsg ...string) error {
 	return True(len(list) <= maxLen, errMsg...)
+}
+
+func NoLongerx[T any](maxLen int, list []T, errMsg ...string) func() error {
+	return func() error {
+		return NoLonger(maxLen, list, errMsg...)
+	}
 }
 
 func find[T comparable](list []T, expect T) bool {
