@@ -11,7 +11,7 @@ import (
 
 var errorWrapper function.Operation[error] = func(err error) error { return err }
 
-func setErrorWrapper(wrapper function.Operation[error]) {
+func SetErrorWrapper(wrapper function.Operation[error]) {
 	errorWrapper = wrapper
 }
 
