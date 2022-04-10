@@ -33,63 +33,10 @@ func TimeValid(t time.Time, errMsg ...string) error {
 	return False(t.IsZero(), errMsg...)
 }
 
-func TimeValidX(t time.Time, errMsg ...string) func() error {
+func TimeValidx(t time.Time, errMsg ...string) func() error {
 	return func() error {
 		return TimeValid(t, errMsg...)
 	}
-}
-
-func Int64EQ(expect, actual int64, errMsg ...string) error {
-	return True(actual == expect, errMsg...)
-}
-
-func Int64NE(expect, actual int64, errMsg ...string) error {
-	return True(actual != expect, errMsg...)
-}
-
-func Int64GTE(expect, actual int64, errMsg ...string) error {
-	return True(actual >= expect, errMsg...)
-}
-
-func Int64GT(expect, actual int64, errMsg ...string) error {
-	return True(actual > expect, errMsg...)
-}
-
-func Int64LTE(expect, actual int64, errMsg ...string) error {
-	return True(actual <= expect, errMsg...)
-}
-
-func Int64LT(expect, actual int64, errMsg ...string) error {
-	return True(actual < expect, errMsg...)
-}
-
-func Int64In(expect []int64, actual int64, errMsg ...string) error {
-	return True(find(expect, actual), errMsg...)
-}
-
-func StringNotEmpty(s string, errMsg ...string) error {
-	return True(len(s) != 0, errMsg...)
-}
-
-func StringNoLonger(maxLen int, s string, errMsg ...string) error {
-	return True(utf8.RuneCountInString(s) <= maxLen, errMsg...)
-}
-
-func StringEqual(expect, actual string, errMsg ...string) error {
-	return True(expect == actual, errMsg...)
-}
-
-func StringIn(expect []string, actual string, errMsg ...string) error {
-	return True(findString(expect, actual), errMsg...)
-}
-
-func findString(expect []string, actual string) bool {
-	for _, e := range expect {
-		if e == actual {
-			return true
-		}
-	}
-	return false
 }
 
 type Number interface {
@@ -183,6 +130,16 @@ func NoLonger[T any](maxLen int, list []T, errMsg ...string) error {
 func NoLongerx[T any](maxLen int, list []T, errMsg ...string) func() error {
 	return func() error {
 		return NoLonger(maxLen, list, errMsg...)
+	}
+}
+
+func StringNoLonger(maxLen int, s string, errMsg ...string) error {
+	return True(utf8.RuneCountInString(s) <= maxLen, errMsg...)
+}
+
+func StringNoLongerx(maxLen int, s string, errMsg ...string) func() error {
+	return func() error {
+		return StringNoLonger(maxLen, s, errMsg...)
 	}
 }
 
