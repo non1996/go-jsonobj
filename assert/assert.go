@@ -143,6 +143,16 @@ func StringNoLongerx(maxLen int, s string, errMsg ...string) func() error {
 	}
 }
 
+func StringNotEmpty(s string, errMsg ...string) error {
+	return True(len(s) != 0, errMsg...)
+}
+
+func StringNotEmptyx(s string, errMsg ...string) func() error {
+	return func() error {
+		return StringNotEmpty(s, errMsg...)
+	}
+}
+
 func find[T comparable](list []T, expect T) bool {
 	return stream.Slice(list).Find(func(v T) bool { return v == expect }).IsPresent()
 }
