@@ -41,3 +41,14 @@ func Reduce[T any](identity T, s []T, operation function.BiOperation[T]) optiona
 	}
 	return optional.New(identity)
 }
+
+func FlatMap[T1 any, T2 any](s []T1, mapper function.Function[T1, []T2]) []T2 {
+	if len(s) == 0 {
+		return nil
+	}
+	res := make([]T2, 0)
+	for idx := range s {
+		res = append(res, mapper(s[idx])...)
+	}
+	return res
+}
