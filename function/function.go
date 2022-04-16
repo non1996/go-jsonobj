@@ -10,3 +10,4 @@ type Function[T any, R any] func(T) R
 type Operation[T any] func(T) T
 type Predicate[T any] func(T) bool
 type Supplier[T any] func() T
+type Comparator[T any] func(T, T) bool

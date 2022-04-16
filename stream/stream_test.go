@@ -50,46 +50,14 @@ func TestCollectToMap(t *testing.T) {
 	fmt.Println(res)
 }
 
-type Service interface {
-	Exec() error
-}
-
-type Req interface {
-	Seriallize() string
-}
-
-type BaseService[R Req] struct {
-	req R
-}
-
-func NewBaseService[T Req](req T) BaseService[T] {
-	return BaseService[T]{req: req}
-}
-
-type ProjectReq struct {
-	ID int64
-}
-
-func (p *ProjectReq) Seriallize() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-type ProjectService struct {
-	BaseService[*ProjectReq]
-}
-
-func NewProjectService() Service {
-	return &ProjectService{NewBaseService(&ProjectReq{})}
-}
-
-func (s *ProjectService) Exec() error {
-	fmt.Println(s.req.ID)
-	return nil
-}
-
-func TestNewProjectService(t *testing.T) {
-	p := NewProjectService()
-
-	p.Exec()
+func TestSorted(t *testing.T) {
+	var a = []int64{1, 2, 3, 9, 5, 6, 7}
+	after := Slice(a).
+		Skip(1).
+		Limit(5).
+		Filter(func(i int64) bool { return i > 5 }).
+		Sorted(func(i1, i2 int64) bool { return i1 > i2 }).
+		Limit(3).
+		ToList()
+	fmt.Println(after)
 }

@@ -13,6 +13,7 @@ type Stream[T any] interface {
 	Map(function.Operation[T]) Stream[T]
 	Skip(int) Stream[T]
 	Limit(int) Stream[T]
+	Sorted(function.Comparator[T]) Stream[T]
 	ToList() []T
 	Foreach(function.Consumer[T])
 	Count() int

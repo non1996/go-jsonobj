@@ -3,6 +3,7 @@ package stream
 import (
 	"github.com/non1996/go-jsonobj/function"
 	"github.com/non1996/go-jsonobj/optional"
+	"sort"
 )
 
 type streamImpl[T any] struct {
@@ -48,6 +49,12 @@ func (s *streamImpl[T]) Limit(n int) Stream[T] {
 		return v, true, count < n
 	})
 	return s
+}
+
+func (s *streamImpl[T]) Sorted(comparator function.Comparator[T]) Stream[T] {
+	arr := s.ToList()
+	sort.Slice(arr, func(i, j int) bool { return comparator(arr[i], arr[j]) })
+	return Slice(arr)
 }
 
 func (s *streamImpl[T]) ToList() (res []T) {
