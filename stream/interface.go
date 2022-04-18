@@ -21,6 +21,7 @@ type Stream[T any] interface {
 	AllMatch(function.Predicate[T]) bool
 	NoneMatch(function.Predicate[T]) bool
 	Find(function.Predicate[T]) optional.Optional[T]
+	Reduce(T, function.BiOperation[T]) optional.Optional[T]
 }
 
 type Iterator[T any] interface {

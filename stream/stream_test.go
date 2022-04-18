@@ -40,7 +40,7 @@ func TestMap(t *testing.T) {
 
 func TestReduce(t *testing.T) {
 	var a = []int64{1, 2, 3, 4, 5, 6}
-	Reduce(int64(1), a, func(v1, v2 int64) int64 { return v1 * v2 }).
+	Slice(a).Limit(4).Reduce(int64(1), func(v1, v2 int64) int64 { return v1 * v2 }).
 		IfPresent(func(v int64) { fmt.Println(v) })
 }
 

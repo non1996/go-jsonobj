@@ -121,6 +121,19 @@ func (s *streamImpl[T]) Find(predicate function.Predicate[T]) (o optional.Option
 	return o
 }
 
+func (s *streamImpl[T]) Reduce(identity T, operation function.BiOperation[T]) optional.Optional[T] {
+	var do bool
+	s.advanceEach(func(v T) bool {
+		do = true
+		identity = operation(identity, v)
+		return true
+	})
+	if !do {
+		return optional.Empty[T]()
+	}
+	return optional.New(identity)
+}
+
 func (s *streamImpl[T]) advanceEach(advancer function.Predicate[T]) {
 	s.iter.Reset()
 	for s.iter.TryAdvance(func(v T) bool {
