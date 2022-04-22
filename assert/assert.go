@@ -22,11 +22,23 @@ func True(cond bool, errMsg ...string) error {
 	return nil
 }
 
+func Truex(cond bool, errMsg ...string) func() error {
+	return func() error {
+		return True(cond, errMsg...)
+	}
+}
+
 func False(cond bool, errMsg ...string) error {
 	if cond {
 		return errorWrapper(fmt.Errorf(getErrMsg(errMsg...)))
 	}
 	return nil
+}
+
+func Falsex(cond bool, errMsg ...string) func() error {
+	return func() error {
+		return False(cond, errMsg...)
+	}
 }
 
 func TimeValid(t time.Time, errMsg ...string) error {
@@ -150,6 +162,16 @@ func StringNotEmpty(s string, errMsg ...string) error {
 func StringNotEmptyx(s string, errMsg ...string) func() error {
 	return func() error {
 		return StringNotEmpty(s, errMsg...)
+	}
+}
+
+func NotNil[T any](v *T, errMsg ...string) error {
+	return True(v != nil, errMsg...)
+}
+
+func NotNilx[T any](v *T, errMsg ...string) func() error {
+	return func() error {
+		return NotNil(v, errMsg...)
 	}
 }
 
