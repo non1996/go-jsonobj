@@ -52,3 +52,18 @@ func FlatMap[T1 any, T2 any](s []T1, mapper function.Function[T1, []T2]) []T2 {
 	}
 	return res
 }
+
+func MapWithError[T1, T2 any](list []T1, mapper func(T1) (T2, error)) (res []T2, err error) {
+	if len(list) == 0 {
+		return nil, nil
+	}
+	res = make([]T2, 0, len(list))
+	for _, i := range list {
+		r, err := mapper(i)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
+	}
+	return
+}
