@@ -6,100 +6,117 @@ import (
 	"sort"
 )
 
-type streamImpl[T any] struct {
+type pipeline[T any] struct {
 	iter   Iterator[T]
-	stages []stage[T]
+	stages stage[T]
 }
 
-func (s *streamImpl[T]) Filter(predicate function.Predicate[T]) Stream[T] {
-	s.stages = append(s.stages, func(v T) (res T, nextAction bool, nextElem bool) {
-		return v, predicate(v), true
+func newPipeline[T any](iter Iterator[T]) *pipeline[T] {
+	return &pipeline[T]{
+		iter: iter,
+		stages: func(in T) (out T, nextAction bool, nextElem bool) {
+			return in, true, true
+		},
+	}
+}
+
+func (p *pipeline[T]) mergeStage(downstream stage[T]) Stream[T] {
+	upstream := p.stages
+	p.stages = func(in T) (out T, nextAction bool, nextElem bool) {
+		out, nextAction, nextElem = upstream(in)
+		if !nextAction {
+			return
+		}
+		out2, nextAction2, nextElem2 := downstream(out)
+		return out2, nextAction2, nextElem && nextElem2
+	}
+	return p
+}
+
+func (p *pipeline[T]) Filter(predicate function.Predicate[T]) Stream[T] {
+	return p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
+		return in, predicate(in), true
 	})
-	return s
 }
 
-func (s *streamImpl[T]) Peek(consumer function.Consumer[T]) Stream[T] {
-	s.stages = append(s.stages, func(v T) (res T, nextAction bool, nextElem bool) {
-		consumer(v)
-		return v, true, true
+func (p *pipeline[T]) Peek(consumer function.Consumer[T]) Stream[T] {
+	return p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
+		consumer(in)
+		return in, true, true
 	})
-	return s
 }
 
-func (s *streamImpl[T]) Map(operation function.Operation[T]) Stream[T] {
-	s.stages = append(s.stages, func(v T) (res T, nextAction bool, nextElem bool) {
-		return operation(v), true, true
+func (p *pipeline[T]) Map(operation function.Operation[T]) Stream[T] {
+	return p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
+		return operation(in), true, true
 	})
-	return s
 }
 
-func (s *streamImpl[T]) Skip(n int) Stream[T] {
+func (p *pipeline[T]) Skip(n int) Stream[T] {
 	var count int
-	s.stages = append(s.stages, func(v T) (res T, nextAction bool, nextElem bool) {
+	return p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
 		count++
-		return v, count > n, true
+		return in, count > n, true
 	})
-	return s
 }
 
-func (s *streamImpl[T]) Limit(n int) Stream[T] {
+func (p *pipeline[T]) Limit(n int) Stream[T] {
 	var count int
-	s.stages = append(s.stages, func(v T) (res T, nextAction bool, nextElem bool) {
+	return p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
 		count++
-		return v, true, count < n
+		return in, true, count < n
 	})
-	return s
 }
 
-func (s *streamImpl[T]) Sorted(comparator function.Comparator[T]) Stream[T] {
-	arr := s.ToList()
+func (p *pipeline[T]) Sorted(comparator function.Comparator[T]) Stream[T] {
+	arr := p.ToList()
 	sort.Slice(arr, func(i, j int) bool { return comparator(arr[i], arr[j]) })
 	return Slice(arr)
 }
 
-func (s *streamImpl[T]) ToList() (res []T) {
-	s.advanceEach(func(v T) bool {
+func (p *pipeline[T]) ToList() (res []T) {
+	p.advanceEach(func(v T) bool {
 		res = append(res, v)
 		return true
 	})
 	return res
 }
 
-func (s *streamImpl[T]) Foreach(consumer function.Consumer[T]) {
-	s.advanceEach(func(v T) bool {
+func (p *pipeline[T]) Foreach(consumer function.Consumer[T]) {
+	p.advanceEach(func(v T) bool {
 		consumer(v)
 		return true
 	})
 }
 
-func (s *streamImpl[T]) Count() (count int) {
-	s.advanceEach(func(T) bool {
+func (p *pipeline[T]) Count() (count int) {
+	p.advanceEach(func(T) bool {
 		count++
 		return true
 	})
 	return
 }
 
-func (s *streamImpl[T]) AnyMatch(predicate function.Predicate[T]) (match bool) {
-	s.advanceEach(func(v T) bool {
+func (p *pipeline[T]) AnyMatch(predicate function.Predicate[T]) (match bool) {
+	p.advanceEach(func(v T) bool {
 		match = predicate(v)
 		return !match
 	})
 	return match
 }
 
-func (s *streamImpl[T]) AllMatch(predicate function.Predicate[T]) (allMatch bool) {
+func (p *pipeline[T]) AllMatch(predicate function.Predicate[T]) (allMatch bool) {
 	allMatch = true
-	s.advanceEach(func(v T) bool {
+	p.advanceEach(func(v T) bool {
 		allMatch = allMatch && predicate(v)
 		return allMatch
 	})
 	return allMatch
 }
 
-func (s *streamImpl[T]) NoneMatch(predicate function.Predicate[T]) (nonMatch bool) {
+func (p *pipeline[T]) NoneMatch(predicate function.Predicate[T]) (nonMatch bool) {
 	nonMatch = true
-	s.advanceEach(func(v T) bool {
+	p.advanceEach(func(v T) bool {
 		if predicate(v) {
 			nonMatch = false
 			return false
@@ -109,9 +126,9 @@ func (s *streamImpl[T]) NoneMatch(predicate function.Predicate[T]) (nonMatch boo
 	return nonMatch
 }
 
-func (s *streamImpl[T]) Find(predicate function.Predicate[T]) (o optional.Optional[T]) {
+func (p *pipeline[T]) Find(predicate function.Predicate[T]) (o optional.Optional[T]) {
 	o = optional.Empty[T]()
-	s.advanceEach(func(v T) bool {
+	p.advanceEach(func(v T) bool {
 		if predicate(v) {
 			o.Set(v)
 			return false
@@ -121,9 +138,9 @@ func (s *streamImpl[T]) Find(predicate function.Predicate[T]) (o optional.Option
 	return o
 }
 
-func (s *streamImpl[T]) Reduce(identity T, operation function.BiOperation[T]) optional.Optional[T] {
+func (p *pipeline[T]) Reduce(identity T, operation function.BiOperation[T]) optional.Optional[T] {
 	var do bool
-	s.advanceEach(func(v T) bool {
+	p.advanceEach(func(v T) bool {
 		do = true
 		identity = operation(identity, v)
 		return true
@@ -134,20 +151,14 @@ func (s *streamImpl[T]) Reduce(identity T, operation function.BiOperation[T]) op
 	return optional.New(identity)
 }
 
-func (s *streamImpl[T]) advanceEach(advancer function.Predicate[T]) {
-	s.iter.Reset()
-	for s.iter.TryAdvance(func(v T) bool {
-		var nextAction bool
-		var nextElem = true
-		for _, stage := range s.stages {
-			var tmp bool
-			v, nextAction, tmp = stage(v)
-			nextElem = nextElem && tmp
-			if !nextAction {
-				return nextElem
-			}
-		}
-		return advancer(v) && nextElem
+func (p *pipeline[T]) advanceEach(advancer function.Predicate[T]) {
+	p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
+		return out, nextAction, advancer(in)
+	})
+
+	for p.iter.TryAdvance(func(v T) bool {
+		_, _, nextElem := p.stages(v)
+		return nextElem
 	}) {
 	}
 }

@@ -6,6 +6,7 @@ import (
 )
 
 type stage[T any] func(T) (v T, nextAction bool, nextElem bool)
+type stage2[IN, OUT any] func(IN) (v OUT, nextAction bool, nextElem bool)
 
 type Stream[T any] interface {
 	Filter(function.Predicate[T]) Stream[T]
@@ -25,6 +26,12 @@ type Stream[T any] interface {
 }
 
 type Iterator[T any] interface {
-	Reset()
 	TryAdvance(function.Predicate[T]) bool
+}
+
+type Sink[IN any] interface {
+	Begin(size int)
+	End()
+	Cancel() bool
+	Accept(IN)
 }

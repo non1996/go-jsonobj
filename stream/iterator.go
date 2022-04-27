@@ -8,10 +8,6 @@ type sliceIterator[T any] struct {
 	idx int
 }
 
-func (s *sliceIterator[T]) Reset() {
-	s.idx = 0
-}
-
 func (s *sliceIterator[T]) TryAdvance(predicate function.Predicate[T]) bool {
 	if s.idx >= len(s.s) {
 		return false

@@ -6,11 +6,11 @@ import (
 )
 
 func Slice[T any](s []T) Stream[T] {
-	return &streamImpl[T]{iter: &sliceIterator[T]{s: s}}
+	return newPipeline[T](&sliceIterator[T]{s: s})
 }
 
 func New[T any](iter Iterator[T]) Stream[T] {
-	return &streamImpl[T]{iter: iter}
+	return newPipeline[T](iter)
 }
 
 func Map[T1 any, T2 any](s []T1, mapper function.Function[T1, T2]) []T2 {
@@ -66,4 +66,31 @@ func MapWithError[T1, T2 any](list []T1, mapper func(T1) (T2, error)) (res []T2,
 		res = append(res, r)
 	}
 	return
+}
+
+func MapS[T1, T2 any](src Stream[T1], mapper func(T1) T2) Stream[T2] {
+	pipe := src.(*pipeline[T1])
+	iter := &mapIterator[T1, T2]{
+		upstream: pipe.iter,
+		stages: func(in T1) (out T2, nextAction bool, nextElem bool) {
+			in, nextAction, nextElem = pipe.stages(in)
+			if !nextAction {
+				return
+			}
+			return mapper(in), true, nextElem
+		},
+	}
+	return newPipeline[T2](iter)
+}
+
+func CollectToMapS[T any, K comparable, V any](
+	s Stream[T],
+	keyMapper function.Function[T, K],
+	valMapper function.Function[T, V],
+) map[K]V {
+	res := map[K]V{}
+	s.Foreach(func(v T) {
+		res[keyMapper(v)] = valMapper(v)
+	})
+	return res
 }
