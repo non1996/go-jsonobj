@@ -284,10 +284,14 @@ func (d *Doc) RemoveAll(value interface{}) {
 
 func (d *Doc) Len() int {
 	a, err := d.CastArr()
-	if err != nil {
-		return 0
+	if err == nil {
+		return len(a)
 	}
-	return len(a)
+	m, err := d.CastMap()
+	if err == nil {
+		return len(m)
+	}
+	return 0
 }
 
 func (d *Doc) preAlloc(key Key) {
