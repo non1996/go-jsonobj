@@ -11,3 +11,7 @@ type Operation[T any] func(T) T
 type Predicate[T any] func(T) bool
 type Supplier[T any] func() T
 type Comparator[T any] func(T, T) bool
+
+func Noop[T any](t T) T {
+	return t
+}
