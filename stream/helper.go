@@ -32,6 +32,17 @@ func CollectToMap[T any, K comparable, V any](s []T, keyMapper function.Function
 	return res
 }
 
+func CollectToMapDump[T any, K comparable, V any](
+	s []T, keyMapper function.Function[T, K],
+	valMapper function.Function[T, V],
+) map[K][]V {
+	res := map[K][]V{}
+	for idx := range s {
+		res[keyMapper(s[idx])] = append(res[keyMapper(s[idx])], valMapper(s[idx]))
+	}
+	return res
+}
+
 func Reduce[T any](identity T, s []T, operation function.BiOperation[T]) optional.Optional[T] {
 	if len(s) == 0 {
 		return optional.Empty[T]()
@@ -70,7 +81,7 @@ func MapWithError[T1, T2 any](list []T1, mapper func(T1) (T2, error)) (res []T2,
 
 func MapS[T1, T2 any](src Stream[T1], mapper func(T1) T2) Stream[T2] {
 	pipe := src.(*pipeline[T1])
-	iter := &mapIterator[T1, T2]{
+	iter := &mappingIterator[T1, T2]{
 		upstream: pipe.iter,
 		stages: func(in T1) (out T2, nextAction bool, nextElem bool) {
 			in, nextAction, nextElem = pipe.stages(in)
