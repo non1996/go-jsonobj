@@ -20,19 +20,6 @@ func newPipeline[T any](iter Iterator[T]) *pipeline[T] {
 	}
 }
 
-func (p *pipeline[T]) mergeStage(downstream stage[T]) Stream[T] {
-	upstream := p.stages
-	p.stages = func(in T) (out T, nextAction bool, nextElem bool) {
-		out, nextAction, nextElem = upstream(in)
-		if !nextAction {
-			return
-		}
-		out2, nextAction2, nextElem2 := downstream(out)
-		return out2, nextAction2, nextElem && nextElem2
-	}
-	return p
-}
-
 func (p *pipeline[T]) Filter(predicate function.Predicate[T]) Stream[T] {
 	return p.mergeStage(func(in T) (out T, nextAction bool, nextElem bool) {
 		return in, predicate(in), true
@@ -161,4 +148,17 @@ func (p *pipeline[T]) advanceEach(advancer function.Predicate[T]) {
 		return nextElem
 	}) {
 	}
+}
+
+func (p *pipeline[T]) mergeStage(downstream stage[T]) Stream[T] {
+	upstream := p.stages
+	p.stages = func(in T) (out T, nextAction bool, nextElem bool) {
+		out, nextAction, nextElem = upstream(in)
+		if !nextAction {
+			return
+		}
+		out2, nextAction2, nextElem2 := downstream(out)
+		return out2, nextAction2, nextElem && nextElem2
+	}
+	return p
 }

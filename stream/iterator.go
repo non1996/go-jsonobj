@@ -1,6 +1,8 @@
 package stream
 
-import "github.com/non1996/go-jsonobj/function"
+import (
+	"github.com/non1996/go-jsonobj/function"
+)
 
 // slice迭代器
 type sliceIterator[T any] struct {
@@ -28,6 +30,6 @@ func (i *mappingIterator[IN, OUT]) TryAdvance(predicate function.Predicate[OUT])
 		if !nextAction {
 			return nextElem
 		}
-		return nextElem && predicate(out)
+		return predicate(out) && nextElem
 	})
 }

@@ -2,7 +2,6 @@ package stream
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -24,6 +23,8 @@ func TestSliceStream(t *testing.T) {
 	fmt.Println(Slice(a).NoneMatch(func(v int64) bool { return v < 10 }))
 	fmt.Println(Slice(a).NoneMatch(func(v int64) bool { return v < 3 }))
 	fmt.Println(Slice(a).Limit(5).Count())
+	fmt.Println(Slice(a).Sorted(intcomp).Limit(5).Count())
+
 	fmt.Println("filter", Slice(a).Filter(func(v int64) bool { return v > 3 }).Count())
 
 	Slice(a).Find(func(v int64) bool { return v > 3 }).
@@ -65,26 +66,13 @@ func TestSorted(t *testing.T) {
 
 func TestMapping(t *testing.T) {
 	var a = []int64{1, 2, 3, 9, 5, 6, 7}
-	s := MapS(Slice(a).
-		Skip(1).
-		Limit(5).
-		Filter(func(i int64) bool { return i > 5 }).
-		Sorted(func(i1, i2 int64) bool { return i1 < i2 }).
-		Limit(3),
-		func(i int64) string {
-			return fmt.Sprintf("xxx-%d", i)
-		}).
-		Limit(1).
-		Map(func(s string) string {
-			return strings.ToUpper(s)
-		}).
-		ToList()
-	fmt.Println(s)
 
-	m := CollectToMapS(Slice(a).Limit(4), func(i int64) string {
+	m := MapS(Slice(a).Sorted(intcomp).Limit(4), func(i int64) string {
 		return fmt.Sprintf("xxx-%d", i)
-	}, func(i int64) int64 {
-		return i * i
-	})
+	}).ToList()
 	fmt.Println(m)
+}
+
+func intcomp(i, j int64) bool {
+	return i < j
 }
