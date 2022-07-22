@@ -15,3 +15,11 @@ type Comparator[T any] func(T, T) bool
 func Noop[T any](t T) T {
 	return t
 }
+
+// DerefOrDef 对指针解引用，如果是空指针则返回默认值
+func DerefOrDef[T any, P *T](ptr P, d T) (v T) {
+	if ptr == nil {
+		return d
+	}
+	return *ptr
+}

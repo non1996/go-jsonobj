@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
+	"hash/crc32"
+	"strconv"
 	"testing"
 )
 
@@ -85,4 +87,19 @@ func TestHttp(t *testing.T) {
 	fmt.Println(string(b2))
 	b3, _ := json.Marshal(a)
 	fmt.Println(string(b3))
+}
+
+func getBucket(hashKey string, bucketNum int64) string {
+	x := crc32.NewIEEE()
+
+	_, err := x.Write([]byte(hashKey))
+	if err != nil {
+		return "0"
+	}
+
+	return strconv.FormatInt(int64(x.Sum32())%bucketNum, 10)
+}
+
+func TestGetBucket(t *testing.T) {
+	fmt.Println(getBucket(strconv.Itoa(4134632945882302), 10))
 }
