@@ -1,5 +1,7 @@
 package function
 
+import "reflect"
+
 type BiConsumer[T any, U any] func(T, U)
 type BiFunction[T any, U any, R any] func(T, U) R
 type BiOperation[T any] func(T, T) T
@@ -48,4 +50,30 @@ func NonNil[T any](t *T) bool {
 // Ref 传入一个值，返回它的指针
 func Ref[T any](t T) *T {
 	return &t
+}
+
+// Indirect 函数接受一个指针，返回指针指向的值（解引用），对于空指针回返回指针指向类型的默认值
+func Indirect[T any](t *T) T {
+	if t != nil {
+		return *t
+	}
+	return Zero[T]()
+}
+
+// IndirectOr 函数和 Indirect 很像，但允许用户自定义遇到空指针时返回的默认值。
+func IndirectOr[T any](t *T, d T) T {
+	if t != nil {
+		return *t
+	}
+	return d
+}
+
+// Zero 函数返回一个类型的默认值 / 零值
+func Zero[T any]() T {
+	return *new(T)
+}
+
+// Type 返回一个类型的指针的 reflect.Type
+func Type[T any]() reflect.Type {
+	return reflect.TypeOf((*T)(nil))
 }
