@@ -19,3 +19,7 @@ type Float interface {
 type Bool interface {
 	~bool
 }
+
+type Number interface {
+	Int | Uint | Float
+}
