@@ -22,18 +22,18 @@ func (a *Asserter) With(f func() error) *Asserter {
 	return a
 }
 
-func (a *Asserter) WithIf(cond bool, action func(a *Asserter)) *Asserter {
+func (a *Asserter) WithIf(cond bool, action func() func() error) *Asserter {
 	if cond {
-		action(a)
+		a.With(action())
 	}
 	return a
 }
 
-func (a *Asserter) WithIfElse(cond bool, action1 func(a *Asserter), action2 func(a *Asserter)) *Asserter {
+func (a *Asserter) WithIfElse(cond bool, action1, action2 func() func() error) *Asserter {
 	if cond {
-		action1(a)
+		a.With(action1())
 	} else {
-		action2(a)
+		a.With(action2())
 	}
 	return a
 }
