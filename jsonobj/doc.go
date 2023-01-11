@@ -3,8 +3,9 @@ package jsonobj
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/modern-go/reflect2"
 	"reflect"
+
+	"github.com/modern-go/reflect2"
 )
 
 type Key interface{}

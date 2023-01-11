@@ -1,9 +1,10 @@
 package stream
 
 import (
+	"sort"
+
 	"github.com/non1996/go-jsonobj/function"
 	"github.com/non1996/go-jsonobj/optional"
-	"sort"
 )
 
 type pipeline[T any] struct {

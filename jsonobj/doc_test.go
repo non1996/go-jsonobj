@@ -3,10 +3,11 @@ package jsonobj
 import (
 	"encoding/json"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"hash/crc32"
 	"strconv"
 	"testing"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 func TestO(t *testing.T) {
