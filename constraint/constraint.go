@@ -20,6 +20,18 @@ type Bool interface {
 	~bool
 }
 
+type Complex interface {
+	~complex64 | ~complex128
+}
+
 type Number interface {
 	Int | Uint | Float
+}
+
+type Basic interface {
+	Int | Uint | String | Float | Bool
+}
+
+type Orderable interface {
+	Int | Uint | Float | String
 }

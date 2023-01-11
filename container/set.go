@@ -32,6 +32,15 @@ func (s Set[V]) Add(i V) bool {
 	return true
 }
 
+func (s Set[V]) AddAll(is ...V) {
+	if len(is) == 0 {
+		return
+	}
+	for _, i := range is {
+		s.Add(i)
+	}
+}
+
 func (s Set[V]) Remove(i V) {
 	delete(s, i)
 }
