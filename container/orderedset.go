@@ -22,6 +22,12 @@ func (o *OrderedSet[V]) Add(val V) {
 	o.m.Add(val, placeholder{})
 }
 
+func (o *OrderedSet[V]) AddAll(vals []V) {
+	for _, v := range vals {
+		o.Add(v)
+	}
+}
+
 func (o *OrderedSet[V]) Exist(val V) bool {
 	return o.m.Exist(val)
 }

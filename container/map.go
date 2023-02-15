@@ -1,5 +1,9 @@
 package container
 
+import (
+	util "github.com/non1996/go-jsonobj/utils"
+)
+
 func Keys[K comparable, V any](m map[K]V) (keys []K) {
 	if len(m) == 0 {
 		return nil
@@ -44,6 +48,17 @@ func MapValues[K comparable, V any](m map[K]V) (values []V) {
 	return values
 }
 
+func MapEntries[K comparable, V any](m map[K]V) (entries []util.Pair[K, V]) {
+	if len(m) == 0 {
+		return nil
+	}
+	entries = make([]util.Pair[K, V], 0, len(m))
+	for k, v := range m {
+		entries = append(entries, util.NewPair(k, v))
+	}
+	return entries
+}
+
 func MapToSlice[K comparable, V any, T any](m map[K]V, mapping func(K, V) T) []T {
 	res := make([]T, 0, len(m))
 	for k, v := range m {
@@ -76,6 +91,15 @@ func MapClear[K comparable, V any](m map[K]V) {
 	for _, k := range keys {
 		delete(m, k)
 	}
+}
+
+func MapExist[K comparable, V any](m map[K]V, key K) bool {
+	_, exist := m[key]
+	return exist
+}
+
+func MapGet[K comparable, V any](m map[K]V, key K) V {
+	return m[key]
 }
 
 func MapGetOrDefault[K comparable, V any](m map[K]V, key K, defaultValue V) V {
@@ -146,4 +170,28 @@ func MapCompute[K comparable, V any](m map[K]V, k K, mapping func(K, V, bool) (V
 		m[k] = newValue
 		return newValue, true
 	}
+}
+
+func MapCopy[K comparable, V any](m map[K]V) map[K]V {
+	newMap := make(map[K]V, len(m))
+
+	for k, v := range m {
+		newMap[k] = v
+	}
+
+	return newMap
+}
+
+func MapMerge[K comparable, V any](m1, m2 map[K]V) map[K]V {
+	newMap := make(map[K]V, len(m1)+len(m2))
+
+	for k, v := range m1 {
+		newMap[k] = v
+	}
+
+	for k, v := range m2 {
+		newMap[k] = v
+	}
+
+	return newMap
 }

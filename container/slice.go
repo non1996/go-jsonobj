@@ -58,3 +58,16 @@ func SliceGetFirstOr[T any](s []T, d T) T {
 	}
 	return s[0]
 }
+
+func SliceCopy[T any](s []T) []T {
+	if len(s) == 0 {
+		return nil
+	}
+
+	newSlice := make([]T, len(s))
+	for idx, v := range s {
+		newSlice[idx] = v
+	}
+
+	return newSlice
+}

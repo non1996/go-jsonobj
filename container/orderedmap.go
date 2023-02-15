@@ -57,6 +57,13 @@ func (o *OrderedMap[K, V]) Keys() []K {
 	return keys
 }
 
+func (o *OrderedMap[K, V]) Foreach(action func(K, V)) {
+	for elem := o.l.Front(); elem != nil; elem = elem.Next() {
+		p := elem.Value.(util.Pair[K, V])
+		action(p.First, p.Second)
+	}
+}
+
 func (o *OrderedMap[K, V]) ForeachErr(action func(K, V) error) error {
 	for elem := o.l.Front(); elem != nil; elem = elem.Next() {
 		p := elem.Value.(util.Pair[K, V])

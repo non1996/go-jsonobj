@@ -122,3 +122,9 @@ func NonZeroOr[T comparable](v T, d T) T {
 	}
 	return v
 }
+
+// Copy 只拷贝对象本身，不拷贝其指针成员指向的其他变量
+func Copy[T any](t *T) *T {
+	tmp := *t
+	return &tmp
+}
