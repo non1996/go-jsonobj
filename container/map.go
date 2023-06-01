@@ -1,6 +1,7 @@
 package container
 
 import (
+	"github.com/non1996/go-jsonobj/function"
 	util "github.com/non1996/go-jsonobj/utils"
 )
 
@@ -191,6 +192,23 @@ func MapMerge[K comparable, V any](m1, m2 map[K]V) map[K]V {
 
 	for k, v := range m2 {
 		newMap[k] = v
+	}
+
+	return newMap
+}
+
+func MapMapping[K comparable, V any, K2 comparable, V2 any](
+	m map[K]V,
+	keyMapper function.Function[K, K2],
+	valueMapper function.Function[V, V2],
+) map[K2]V2 {
+	if m == nil {
+		return nil
+	}
+
+	newMap := make(map[K2]V2, len(m))
+	for k, v := range m {
+		newMap[keyMapper(k)] = valueMapper(v)
 	}
 
 	return newMap
